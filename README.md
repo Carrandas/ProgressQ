@@ -4,6 +4,8 @@ An idle fantasy RPG that plays itself. Roll a hero, pick a class, then sit back 
 
 ## ▶ [Play it in your browser](https://carrandas.github.io/ProgressQ/)
 
+[![A level 11 Wood Elf Mage mid-adventure: the current task bar, experience, pack, quest and story meters, and the Chronicle log](screenshot.png)](https://carrandas.github.io/ProgressQ/)
+
 ## How it works
 
 1. **Create a hero.** Choose a name, a race (Human, Hill Dwarf, Wood Elf, Halfling, Gnome or Goblin) and a class:

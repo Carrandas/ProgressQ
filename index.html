@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Endless Errand</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -182,6 +187,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--brass); out
 }
 </style>
 
+</head>
+<body>
 <div class="wrap" id="app"></div>
 
 <script>
@@ -663,3 +670,5 @@ function boot(data) {
 }
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
 </script>
+</body>
+</html>

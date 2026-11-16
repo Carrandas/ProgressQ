@@ -1,0 +1,665 @@
+<title>The Endless Errand</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Alegreya:ital,wght@0,400;0,600;1,400&family=Alegreya+Sans+SC:wght@500;700&family=Alegreya+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: a lantern-lit campaign journal. Hero banner + live task up top, meters row, then sheet | chronicle | pack. Single dark theme by choice. */
+:root {
+  --ink: #0f171a;
+  --panel: #172327;
+  --panel-2: #1c2b30;
+  --rim: #2d3f44;
+  --parch: #ebe0c7;
+  --dim: #98a69e;
+  --brass: #d6a94c;
+  --brass-dk: #8a6a2a;
+  --teal: #4fb3a2;
+  --wine: #c05a70;
+  --leather: #b07a43;
+  --good: #8cc56b;
+  --display: "Pirata One", "Luminari", fantasy, serif;
+  --body: "Alegreya", Georgia, "Times New Roman", serif;
+  --label: "Alegreya Sans SC", "Gill Sans", system-ui, sans-serif;
+  --num: "Alegreya Sans", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: radial-gradient(ellipse at 50% -10%, #20323a 0%, var(--ink) 60%) fixed, var(--ink);
+  color: var(--parch);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-block: 14px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.lbl { font-family: var(--label); font-weight: 700; letter-spacing: .08em; font-size: 12.5px; color: var(--dim); text-transform: lowercase; }
+.num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+
+/* top bar */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-size: 26px; color: var(--brass); letter-spacing: .02em; line-height: 1; }
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--rim); border-radius: 999px; overflow: hidden; }
+.seg button { background: transparent; border: 0; padding: 4px 11px; font-family: var(--num); font-size: 13px; color: var(--dim); }
+.seg button[aria-pressed="true"] { background: var(--brass); color: var(--ink); font-weight: 600; }
+.ghost { background: transparent; border: 1px solid var(--rim); border-radius: 999px; padding: 4px 12px; font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: .05em; color: var(--dim); }
+.ghost:hover { color: var(--parch); border-color: var(--brass-dk); }
+.saved { font-size: 12px; color: var(--dim); font-family: var(--num); min-width: 64px; text-align: right; }
+
+/* hero banner */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 20px; align-items: end;
+  border-bottom: 1px solid var(--rim); padding-bottom: 18px; }
+.who h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(38px, 6vw, 60px); line-height: .95; text-wrap: balance; overflow-wrap: anywhere; }
+.who .sub { margin-top: 6px; font-size: 17px; color: var(--dim); }
+.who .sub b { color: var(--parch); font-weight: 600; }
+.where { display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: .06em;
+  border: 1px solid var(--rim); border-radius: 999px; padding: 3px 12px 3px 9px; color: var(--teal); }
+.where::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+.now { min-width: 0; }
+.now .lbl { color: var(--brass); }
+.now .desc { font-size: clamp(20px, 2.4vw, 26px); font-style: italic; margin: 4px 0 10px; min-height: 1.45em; overflow-wrap: anywhere; }
+.now .desc::after { content: "…"; color: var(--dim); }
+.bigbar { position: relative; height: 22px; border-radius: 4px; background: #0a1113; border: 1px solid var(--brass-dk); overflow: hidden; box-shadow: inset 0 2px 6px #0008; }
+.bigbar .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: linear-gradient(180deg, #f0c766, var(--brass) 55%, #a57d2e); }
+.bigbar .fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, #fff5 50%, transparent 70%); background-size: 200% 100%; animation: sheen 2.2s linear infinite; }
+.bigbar .pct { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--num); font-size: 13px; font-weight: 600; color: var(--parch); text-shadow: 0 1px 2px #000; }
+@keyframes sheen { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .bigbar .fill::after { animation: none; } }
+
+/* meters */
+.meters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.meter { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.meter .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.meter .val { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--dim); white-space: nowrap; }
+.meter .name { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.4em; }
+.bar { height: 9px; border-radius: 99px; background: #0a1113; border: 1px solid var(--rim); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width .25s linear; }
+.m-xp i { background: var(--brass); }
+.m-pack i { background: var(--leather); }
+.m-quest i { background: var(--teal); }
+.m-chap i { background: var(--wine); }
+
+/* main grid */
+.main { display: grid; grid-template-columns: 300px minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+.col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.sec h2 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 23px; color: var(--brass); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.sec h2 small { font-family: var(--num); font-size: 13px; color: var(--dim); }
+.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.rows li { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 5px 0; border-bottom: 1px dashed #2d3f4499; min-width: 0; }
+.rows li:last-child { border-bottom: 0; }
+.rows .k { color: var(--dim); font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: .06em; flex: 0 0 auto; }
+.rows .v { text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.rows .empty { color: #5d6c68; font-style: italic; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { border: 1px solid var(--rim); border-radius: 6px; padding: 6px 8px; display: flex; justify-content: space-between; align-items: baseline; }
+.stat b { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 18px; font-weight: 600; }
+.stat.prime { border-color: var(--brass-dk); background: #d6a94c14; }
+.stat.prime .lbl { color: var(--brass); }
+.vitals { margin-top: 10px; }
+.pow { font-family: var(--num); font-size: 12px; color: var(--ink); background: var(--dim); border-radius: 4px; padding: 0 5px; margin-left: 6px; font-weight: 600; vertical-align: 1px; }
+.rank { font-family: var(--label); font-weight: 700; color: var(--brass); letter-spacing: .04em; }
+
+/* chronicle */
+.chron { background: var(--panel); border: 1px solid var(--rim); border-radius: 8px; padding: 14px 16px 6px; }
+.log { list-style: none; margin: 0; padding: 0; max-height: 640px; overflow-y: auto; display: flex; flex-direction: column; }
+.log li { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; padding: 7px 0; border-bottom: 1px solid #2d3f4466; }
+.log li:last-child { border-bottom: 0; }
+.log time { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 12.5px; color: #66766f; padding-top: 2px; }
+.log span { overflow-wrap: anywhere; }
+.log .story span { font-style: italic; color: #d9cfb8; }
+.log .chapter span { font-family: var(--display); font-size: 22px; color: var(--wine); font-style: normal; }
+.log .lvl span { color: var(--brass); font-weight: 600; }
+.log .quest span { color: var(--teal); }
+.log .loot span { color: var(--good); }
+.log .gold span { color: #d8c08b; }
+.log li.fresh { animation: fadein .5s ease-out; }
+@keyframes fadein { from { background: #d6a94c22; } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .log li.fresh { animation: none; } }
+
+.quests li .v { text-align: left; }
+.qcheck { color: var(--teal); margin-right: 6px; }
+.qcur { color: var(--parch); }
+.qcur::before { content: "▸ "; color: var(--brass); }
+.qdone { color: var(--dim); text-decoration: line-through; text-decoration-color: #66766f; }
+
+/* creation screen */
+.create { max-width: 880px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 22px; padding-top: 8px; }
+.create header h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(44px, 8vw, 72px); color: var(--brass); line-height: .95; }
+.create header p { margin: 8px 0 0; color: var(--dim); max-width: 60ch; font-size: 17px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.namebox { display: flex; gap: 8px; }
+.namebox input { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--rim); border-radius: 6px; color: var(--parch); font-family: var(--display); font-size: 28px; padding: 6px 12px; }
+.die { background: var(--panel-2); border: 1px solid var(--rim); border-radius: 6px; padding: 0 14px; font-family: var(--label); font-weight: 700; letter-spacing: .05em; color: var(--brass); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { background: transparent; border: 1px solid var(--rim); border-radius: 999px; padding: 5px 14px; color: var(--dim); }
+.chip small { font-family: var(--num); font-size: 12px; color: #6f7f78; margin-left: 4px; }
+.chip[aria-pressed="true"] { border-color: var(--brass); color: var(--parch); background: #d6a94c18; }
+.chip[aria-pressed="true"] small { color: var(--brass); }
+.classes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.ccard { text-align: left; background: var(--panel); border: 1px solid var(--rim); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.ccard h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1; }
+.ccard p { margin: 0; color: var(--dim); font-size: 15px; }
+.ccard .lbl { color: var(--brass-dk); }
+.ccard[aria-pressed="true"] { border-color: var(--brass); background: linear-gradient(180deg, #d6a94c1c, var(--panel) 70%); }
+.ccard[aria-pressed="true"] h3 { color: var(--brass); }
+.ccard[aria-pressed="true"] .lbl { color: var(--brass); }
+.rollrow { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.rollrow .stats { flex: 1; min-width: 260px; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.total { font-family: var(--num); color: var(--dim); font-size: 14px; }
+.total b { color: var(--parch); font-size: 18px; }
+.begin { align-self: flex-start; background: var(--brass); color: var(--ink); border: 0; border-radius: 6px; padding: 10px 22px; font-family: var(--display); font-size: 26px; line-height: 1; box-shadow: 0 3px 0 var(--brass-dk); }
+.begin:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--brass-dk); }
+
+/* modal */
+.modal { position: fixed; inset: 0; background: #050a0bcc; display: grid; place-items: center; z-index: 20; padding: 16px; }
+.modal .box { background: var(--panel); border: 1px solid var(--brass-dk); border-radius: 10px; padding: 20px; max-width: 380px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+.modal h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--brass); }
+.modal p { margin: 0; color: var(--dim); }
+.modal .acts { display: flex; gap: 10px; justify-content: flex-end; }
+.danger { background: var(--wine); border: 0; color: var(--parch); border-radius: 6px; padding: 6px 14px; font-family: var(--label); font-weight: 700; letter-spacing: .05em; }
+
+@media (max-width: 1060px) {
+  .main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .main .c-log { grid-column: 1 / -1; order: -1; }
+}
+@media (max-width: 720px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .meters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .classes { grid-template-columns: minmax(0, 1fr); }
+  .rollrow .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); min-width: 0; }
+  .log { max-height: 420px; }
+}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+"use strict";
+// ---------- tiny helpers ----------
+const R = n => Math.floor(Math.random() * n);
+const pick = a => a[R(a.length)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const article = s => (/^[aeiou]/i.test(s) ? "an " : "a ") + s;
+const roman = n => { if (n <= 0) return "0"; const m = [[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]]; let s = ""; for (const [v, r] of m) while (n >= v) { s += r; n -= v; } return s; };
+const fmtTime = ms => { const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0"); };
+const d6 = () => 1 + R(6);
+
+// ---------- world data ----------
+const TOWN = "Kettlewick";
+const STATS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"];
+const RACES = {
+  "Human": { bonus: { CHA: 1, CON: 1 }, note: "+1 CHA, +1 CON" },
+  "Hill Dwarf": { bonus: { CON: 2 }, note: "+2 CON" },
+  "Wood Elf": { bonus: { DEX: 1, WIS: 1 }, note: "+1 DEX, +1 WIS" },
+  "Halfling": { bonus: { DEX: 2 }, note: "+2 DEX" },
+  "Gnome": { bonus: { INT: 2 }, note: "+2 INT" },
+  "Goblin": { bonus: { DEX: 1, STR: 1 }, note: "+1 DEX, +1 STR" },
+};
+const CLASSES = {
+  Mage: {
+    prime: "INT", second: "WIS", book: "Spellbook", prep: "with",
+    blurb: "Reads old books, sets things on fire, apologises afterwards.",
+    verbs: ["Pelting", "Scorching", "Hexing", "Zapping", "Befuddling", "Frazzling"],
+    skills: ["Spark", "Frost Needle", "Mage Light", "Arcane Shove", "Fizzlebolt", "Minor Fireball", "Blink", "Stoneskin", "Summon Teacup", "Chain Lightning", "Time Hiccup", "Gravity Sulk", "Meteor Drizzle", "Polymorph Into Toad", "Wish (Small)"],
+    hp: 6, mp: 12, start: "Splintered Wand",
+  },
+  Warrior: {
+    prime: "STR", second: "CON", book: "Techniques", prep: "using",
+    blurb: "Hits things until they stop being things. Excellent at doors.",
+    verbs: ["Hacking at", "Bashing", "Cleaving", "Wrestling", "Shoulder-checking", "Thumping"],
+    skills: ["Cleave", "Shield Bash", "Battle Shout", "Second Wind", "Charge", "Taunt", "Ground Stomp", "Whirlwind", "Iron Will", "Sunder Armor", "Headbutt", "Execute", "Unbreakable Stance", "Rallying Bellow", "Mountain Splitter"],
+    hp: 12, mp: 3, start: "Rusty Shortsword",
+  },
+  Thief: {
+    prime: "DEX", second: "CHA", book: "Tricks", prep: "using",
+    blurb: "Gets in, gets out, gets paid. Usually in that order.",
+    verbs: ["Ambushing", "Stabbing", "Outwitting", "Tripping", "Mugging", "Bamboozling"],
+    skills: ["Backstab", "Pickpocket", "Lockpicking", "Smoke Bomb", "Feint", "Cheap Shot", "Poisoned Edge", "Distract", "Shadowstep", "Fence Goods", "Disguise", "Vanish", "Death From Above", "Steal Shadow", "Heist of the Century"],
+    hp: 9, mp: 6, start: "Bent Dagger",
+  },
+};
+const MONSTERS = [
+  ["Puddle Slime", 1, "slime glob"], ["Grumpy Badger", 1, "badger pelt"], ["Cellar Rat", 1, "rat tail"],
+  ["Mudgob", 2, "mudgob ear"], ["Kobold Pest", 2, "tin whistle"], ["Bog Gnoll", 3, "gnoll tusk"],
+  ["Thornback Boar", 3, "boar bristle"], ["Hedge Witchling", 4, "broom twig"], ["Giant Moth", 4, "moth wing"],
+  ["Skeleton Squire", 5, "polished rib"], ["Cave Lurker", 5, "lurker eye"], ["Bandit Lookout", 6, "stolen spoon"],
+  ["Marsh Troll", 7, "troll toenail"], ["Ghoul", 8, "grave dirt pouch"], ["Ironshell Beetle", 8, "iron carapace"],
+  ["Harpy", 9, "harpy feather"], ["Wolfkin Raider", 10, "wolfkin fang"], ["Barrow Wight", 11, "cold coin"],
+  ["Ogre Brute", 12, "ogre knucklebone"], ["Wyrmling", 13, "wyrmling scale"], ["Basilisk", 14, "basilisk eyelid"],
+  ["Stone Golem", 15, "golem pebble"], ["Wraith", 16, "jar of ectoplasm"], ["Frost Giant", 18, "giant icicle"],
+  ["Manticore", 19, "manticore quill"], ["Lich Apprentice", 21, "cracked phylactery"], ["Shadow Drake", 23, "drake heart"],
+  ["Abyssal Knight", 25, "abyssal sigil"], ["Elder Treant", 27, "heartwood knot"], ["Chimera", 29, "chimera mane"],
+  ["Void Herald", 32, "void shard"], ["Ancient Dragon", 36, "dragon tooth"],
+];
+const MODS = [["Sickly", -2], ["Young", -1], ["", 0], ["Big", 1], ["Angry", 2], ["Dire", 3], ["Elder", 5], ["Legendary", 8], ["Mythic", 12], ["Cosmic", 18]];
+const GROUNDS = ["the Mirewood", "the Thornback Hills", "Saltfen Marsh", "the Gloaming Steppe", "the Cinderdeep Mines", "the Hollowspire Ruins", "the Weeping Glacier", "the Ashen Wastes", "the Shattered Sky"];
+const SLOTS = ["Weapon", "Offhand", "Head", "Body", "Hands", "Feet", "Neck", "Ring"];
+const MATS = ["Rusty", "Bent", "Oak", "Copper", "Bronze", "Iron", "Steel", "Silvered", "Dwarfwrought", "Elvensteel", "Moonforged", "Starmetal", "Dragonbone", "Godglass"];
+const BASES = {
+  Weapon: { Mage: ["Wand", "Staff", "Rod", "Scepter"], Warrior: ["Sword", "Axe", "Mace", "Warhammer", "Greatsword"], Thief: ["Dagger", "Shiv", "Rapier", "Kukri", "Hand Crossbow"] },
+  Offhand: { Mage: ["Grimoire", "Orb", "Focus Crystal"], Warrior: ["Buckler", "Kite Shield", "Tower Shield"], Thief: ["Parrying Dagger", "Lockpick Set", "Throwing Knives"] },
+  Head: ["Cap", "Hood", "Helm", "Circlet"], Body: ["Tunic", "Jerkin", "Brigandine", "Hauberk", "Robe"],
+  Hands: ["Gloves", "Gauntlets", "Bracers"], Feet: ["Sandals", "Boots", "Greaves"], Neck: ["Amulet", "Torc", "Pendant"], Ring: ["Ring", "Band", "Signet"],
+};
+const SUFFIX = [" of Slight Warmth", " of the Owl", " of Questionable Origin", " of Haste", " of Mild Luck", " of the Bear", " of Echoes", " of Not Dying", " of the Third Moon", " of Grandma's Approval"];
+const NPCS = ["Old Marrow", "Sister Pell", "Brannoch the Baker", "Widow Quill", "Captain Odd", "Fenwick Tallow", "the Reeve of Kettlewick", "a nervous wizard", "Mother Gristle", "Sir Pomfrey the Lesser"];
+const THINGS = ["spectacles", "prize turnip", "left boot", "wedding ring", "pet newt", "grandmother's ladle", "lucky sock", "only good hat"];
+const PARCELS = ["suspiciously warm parcel", "crate of pickled eels", "sealed hatbox", "very long love letter", "cage of indignant pigeons"];
+const CHAPTERS = ["The Letter in the Stew", "Mud, Mostly", "The Crow Who Knew Too Much", "A Door Without a House", "The Tax Collector of Hollowspire", "Breakfast at the End of the World", "The Second Most Important Prophecy", "Lanterns Under the Lake", "The Cartographer's Revenge", "What the Mountain Owed", "The Long Way Round", "A Small Apocalypse"];
+const INTERLUDES = [
+  "A muddy courier presses a sealed letter into your hands",
+  "Reading the letter twice, then a third time, slower",
+  "Arguing with an innkeeper about a prophecy written on the menu",
+  "Dreaming of a door with no house around it",
+  "Following a talking crow who refuses to explain itself",
+  "Sitting through a very long speech by the Mayor of Kettlewick",
+  "Discovering the map was upside down this whole time",
+  "Swearing an oath in front of a mildly interested goat",
+  "Being mistaken for a famous hero, and not correcting anyone",
+  "Learning the villain was your landlord all along",
+  "Watching the stars rearrange themselves into a frown",
+  "Sharing a campfire with a ghost who just wants to talk",
+  "Decoding a riddle whose answer turns out to be \"a door\"",
+  "Receiving ominous directions from a fortune-telling turnip",
+];
+const PROLOGUE = [
+  "Waking up in a hayloft with no memory of last night",
+  "Being told by a stranger that you are destined for something, probably",
+  "Borrowing a {start} from your uncle's shed",
+  "Saying goodbye to your mother, who packs you eleven sandwiches",
+  "Setting out from Kettlewick before anyone can change their mind",
+];
+const CAMP = ["Making camp under a crooked tree", "Patching a hole in your cloak", "Counting your gold twice, just to be sure", "Washing monster off your boots", "Asking a signpost for directions", "Polishing your {weapon}", "Writing a strongly worded letter home"];
+const SYL1 = ["Bar", "Thor", "El", "Gri", "Mo", "Fen", "Ka", "Ul", "Bra", "Sil", "Dor", "Ny", "Os", "Wren", "Tam", "Ze"];
+const SYL2 = ["a", "e", "i", "o", "ra", "il", "an", "ur", "wy", "ae", "ro", ""];
+const SYL3 = ["dric", "wyn", "thas", "mund", "nor", "bek", "vel", "rin", "gold", "da", "sk", "lith", "mar", "pip"];
+
+// ---------- state ----------
+let S = null;
+let dirty = true;
+let speed = 1;
+const SAVE_KEY = "endless-errand-v1";
+
+function randomName() { return pick(SYL1) + pick(SYL2) + pick(SYL3); }
+function rollStats() { const o = {}; STATS.forEach(k => o[k] = d6() + d6() + d6()); return o; }
+
+function load() { try { const t = localStorage.getItem(SAVE_KEY); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+function save() { if (!S) return; try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); const el = document.getElementById("saved"); if (el) el.textContent = "saved"; } catch (e) {} }
+function wipe() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+
+function cls() { return CLASSES[S.cls]; }
+function xpNeed(L) { return 80 * L + 40 * L * L; }
+function capacity() { return 8 + Math.floor(S.stats.STR / 2); }
+function packCount() { return S.pack.reduce((a, s) => a + s.qty, 0); }
+function hpMax() { return cls().hp + S.stats.CON + S.level * (3 + Math.floor(S.stats.CON / 4)); }
+function mpMax() { return cls().mp + S.stats.INT + Math.floor(S.stats.WIS / 2) + S.level * (1 + Math.floor(S.stats.INT / 6)); }
+function ground() { return GROUNDS[Math.min(Math.floor((S.level - 1) / 4), GROUNDS.length - 1)]; }
+
+function log(txt, kind = "") { S.log.unshift({ t: S.time, txt, k: kind, id: ++S.logId }); if (S.log.length > 180) S.log.length = 180; dirty = true; }
+
+function makeItem(slot, pow, clsName) {
+  pow = Math.max(0, pow);
+  const bases = Array.isArray(BASES[slot]) ? BASES[slot] : BASES[slot][clsName];
+  const tier = Math.min(Math.floor(pow / 3), MATS.length - 1);
+  const plus = pow - tier * 3;
+  const top = Math.min(Math.floor(pow / 4), bases.length - 1);
+  const base = bases[Math.max(0, top - R(2))];
+  const suffix = pow >= 3 && Math.random() < 0.3 ? pick(SUFFIX) : "";
+  return { name: (plus > 0 ? "+" + plus + " " : "") + MATS[tier] + " " + base + suffix, pow };
+}
+
+function newHero(f) {
+  const stats = { ...f.stats };
+  Object.entries(RACES[f.race].bonus).forEach(([k, v]) => stats[k] += v);
+  const equip = {}; SLOTS.forEach(s => equip[s] = null);
+  equip.Weapon = { name: CLASSES[f.cls].start, pow: 0 };
+  equip.Body = { name: "Patched Tunic", pow: 0 };
+  S = {
+    v: 1, name: f.name.trim() || randomName(), race: f.race, cls: f.cls, stats,
+    level: 1, xp: 0, gold: 5, kills: 0, equip, pack: [], skills: {},
+    quest: null, questsDone: [], chapter: 0, chapterProg: 0, chapterMax: 0,
+    task: null, queue: [], log: [], logId: 0, time: 0, location: TOWN, tripGold: 0, speed: 1,
+  };
+  S.skills[CLASSES[f.cls].skills[0]] = 1;
+  log(`${S.name} the ${S.race} ${S.cls} is born into the world.`, "story");
+  save();
+}
+
+// ---------- quests & chapters ----------
+function newQuest() {
+  const m = pick(MONSTERS.filter(x => x[1] <= S.level + 2));
+  const templates = [
+    () => `Thin out the ${m[0]} population`,
+    () => `Fetch ${3 + R(5)} × ${m[2]} for ${pick(NPCS)}`,
+    () => `Escort ${pick(NPCS)} to ${pick(GROUNDS.slice(0, 3 + Math.floor(S.level / 4)))}`,
+    () => `Find ${pick(NPCS)}'s ${pick(THINGS)}`,
+    () => `Deliver a ${pick(PARCELS)} to ${pick(NPCS)}`,
+    () => `Investigate the noises in ${ground()}`,
+    () => `Settle a feud between ${pick(NPCS)} and ${pick(NPCS)}`,
+  ];
+  S.quest = { name: pick(templates)(), prog: 0, max: 8 + R(8) + Math.floor(S.level / 2) };
+  log(`New quest: ${S.quest.name}.`, "quest");
+}
+
+function completeQuest() {
+  const q = S.quest;
+  S.questsDone.unshift(q.name); if (S.questsDone.length > 12) S.questsDone.length = 12;
+  log(`Quest complete: ${q.name}.`, "quest");
+  const roll = R(3);
+  if (roll === 0) {
+    const g = 10 + S.level * 12 + R(S.level * 6 + 5); S.gold += g; log(`Reward: a purse of ${g} gold.`, "gold");
+  } else if (roll === 1) {
+    const slot = pick(SLOTS); const it = makeItem(slot, S.level + 1, S.cls); const cur = S.equip[slot];
+    if (!cur || it.pow > cur.pow) { S.equip[slot] = it; log(`Reward: ${it.name}. Equipped it at once.`, "loot"); }
+    else { const g = 8 + S.level * 8; S.gold += g; log(`Reward: ${article(it.name)}, sold on the spot for ${g} gold.`, "gold"); }
+  } else {
+    const k = pick(STATS); S.stats[k]++; log(`Reward: a blessing from ${pick(NPCS)}. +1 ${k}.`, "lvl");
+  }
+  gainXp(Math.round(xpNeed(S.level) * 0.05));
+  S.chapterProg++;
+  newQuest();
+}
+
+function queueChapter() {
+  const q = S.queue;
+  if (S.chapter === 0) {
+    PROLOGUE.forEach(p => q.push({ k: "story", d: p.replace("{start}", cls().start), t: 2600 }));
+  } else {
+    const pool = INTERLUDES.slice();
+    for (let i = 0; i < 3; i++) q.push({ k: "story", d: pool.splice(R(pool.length), 1)[0], t: 3200 });
+  }
+  q.push({ k: "chapter", d: "Turning the page", t: 1500 });
+}
+
+function chapterTitle(n) { return n === 0 ? "Prologue" : `Chapter ${roman(n)}: ${CHAPTERS[(n - 1) % CHAPTERS.length]}`; }
+
+// ---------- levels ----------
+function gainXp(n) {
+  S.xp += n;
+  while (S.xp >= xpNeed(S.level)) {
+    S.xp -= xpNeed(S.level); S.level++;
+    const c = cls(); S.stats[c.prime]++; const other = pick(STATS); S.stats[other]++;
+    log(`Level ${S.level}! +1 ${c.prime}, +1 ${other}.`, "lvl");
+    const known = Object.keys(S.skills); const unknown = c.skills.filter(s => !S.skills[s]);
+    if (unknown.length && (known.length < 2 || Math.random() < 0.55)) { const s = unknown[0]; S.skills[s] = 1; log(`Learned ${s}.`, "lvl"); }
+    else { const s = pick(known); S.skills[s]++; log(`${s} improves to rank ${roman(S.skills[s])}.`, "lvl"); }
+  }
+  dirty = true;
+}
+
+// ---------- task planning ----------
+function chooseMonster() {
+  const target = Math.max(1, S.level + R(4) - 2);
+  const pool = MONSTERS.filter(m => m[1] <= target + 1).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const m = pick(pool.length ? pool : MONSTERS.slice(0, 3));
+  const diff = target - m[1];
+  let mod = MODS[0]; for (const x of MODS) if (x[1] <= diff) mod = x;
+  return { name: (mod[0] ? mod[0] + " " : "") + m[0], lvl: Math.max(1, m[1] + mod[1]), drop: m[2] };
+}
+
+function killTask() {
+  const m = chooseMonster(), c = cls();
+  const known = Object.keys(S.skills);
+  let d = `${pick(c.verbs)} ${article(m.name)}`;
+  if (known.length && Math.random() < 0.45) d += ` ${c.prep} ${pick(known)}`;
+  const wpow = S.equip.Weapon ? S.equip.Weapon.pow : 0;
+  const t = Math.max(1400, (2400 + m.lvl * 120) * (0.7 + Math.random() * 0.6) * Math.min(1.6, Math.max(0.6, (m.lvl + 2) / (S.level + 2 + wpow * 0.15))));
+  return { k: "kill", d, t, m };
+}
+
+function plan() {
+  const q = S.queue;
+  if (S.chapterProg >= S.chapterMax) { queueChapter(); return; }
+  if (packCount() >= capacity()) {
+    if (S.location !== TOWN) q.push({ k: "travel", d: `Trudging back to ${TOWN} under a full pack`, t: 4500, to: TOWN });
+    S.pack.forEach(st => q.push({ k: "sell", d: `Haggling over ${st.name} ×${st.qty}`, t: 700 + st.qty * 260, name: st.name }));
+    q.push({ k: "shop", d: "Browsing the market stalls", t: 2200 });
+    return;
+  }
+  if (S.location === TOWN || S.location !== ground()) {
+    const g = ground();
+    q.push({ k: "travel", d: S.location === TOWN ? `Heading out to ${g}` : `Pressing on toward ${g}`, t: 4000, to: g });
+    return;
+  }
+  if (Math.random() < 0.06) { q.push({ k: "camp", d: pick(CAMP).replace("{weapon}", S.equip.Weapon ? S.equip.Weapon.name : "fists"), t: 1800 }); return; }
+  q.push(killTask());
+}
+
+function finish(t) {
+  switch (t.k) {
+    case "kill": {
+      const m = t.m; S.kills++;
+      gainXp(4 + m.lvl * 3);
+      const st = S.pack.find(s => s.name === m.drop);
+      const val = 2 + m.lvl * 2 + R(m.lvl + 2);
+      if (st) { st.qty++; st.val += val; } else S.pack.push({ name: m.drop, qty: 1, val });
+      if (S.skills["Pickpocket"] && Math.random() < 0.15) { const g = 1 + R(m.lvl * 2 + 2); S.gold += g; }
+      if (Math.random() < 0.05) {
+        const slot = pick(SLOTS); const it = makeItem(slot, S.level + R(2) - 1, S.cls); const cur = S.equip[slot];
+        if (!cur || it.pow > cur.pow) { S.equip[slot] = it; log(`The ${m.name} dropped ${article(it.name)}. Equipped.`, "loot"); }
+      }
+      if (S.quest) { S.quest.prog++; if (S.quest.prog >= S.quest.max) completeQuest(); }
+      break;
+    }
+    case "travel": S.location = t.to; if (t.to !== TOWN) log(`Arrived at ${t.to}.`); else log(`Back in ${TOWN}. The smell of bread and gossip.`); break;
+    case "sell": { const i = S.pack.findIndex(s => s.name === t.name); if (i >= 0) { S.gold += S.pack[i].val; S.tripGold += S.pack[i].val; S.pack.splice(i, 1); } break; }
+    case "shop": {
+      if (S.tripGold) log(`Sold the haul for ${S.tripGold} gold.`, "gold"); S.tripGold = 0;
+      for (let n = 0; n < 2; n++) {
+        let slot = SLOTS[0], low = Infinity;
+        SLOTS.forEach(s => { const p = S.equip[s] ? S.equip[s].pow : -1; if (p < low) { low = p; slot = s; } });
+        const pow = S.level + R(2) - 1; const cost = 12 + pow * pow * 7;
+        if (pow > low && S.gold >= cost) { const it = makeItem(slot, pow, S.cls); S.equip[slot] = it; S.gold -= cost; log(`Bought ${article(it.name)} for ${cost} gold.`, "loot"); }
+      }
+      break;
+    }
+    case "story": log(t.d + ".", "story"); break;
+    case "chapter":
+      S.chapter++; S.chapterProg = 0; S.chapterMax = Math.min(3 + S.chapter, 10);
+      log(chapterTitle(S.chapter), "chapter");
+      if (!S.quest) newQuest();
+      break;
+  }
+  dirty = true;
+}
+
+function advance(dt) {
+  S.time += dt;
+  let guard = 0;
+  while (dt > 0 && guard++ < 200) {
+    if (!S.task) { if (!S.queue.length) plan(); S.task = S.queue.shift(); S.task.el = 0; dirty = true; }
+    const rem = S.task.t - S.task.el;
+    if (dt >= rem) { dt -= rem; const t = S.task; S.task = null; finish(t); }
+    else { S.task.el += dt; dt = 0; }
+  }
+}
+
+// ---------- rendering: game ----------
+const $ = id => document.getElementById(id);
+
+function gameShell() {
+  $("app").innerHTML = `
+  <div class="topbar">
+    <div class="brand">The Endless Errand</div>
+    <div class="controls">
+      <span class="lbl">pace</span>
+      <div class="seg" id="speed">${[1, 2, 5, 25].map(n => `<button type="button" data-s="${n}" aria-pressed="false">${n}×</button>`).join("")}</div>
+      <button type="button" class="ghost" id="retire">New hero</button>
+      <span class="saved" id="saved"></span>
+    </div>
+  </div>
+  <section class="hero">
+    <div class="who">
+      <h1 id="hName"></h1>
+      <div class="sub" id="hSub"></div>
+      <div class="where" id="hWhere"></div>
+    </div>
+    <div class="now">
+      <div class="lbl">now</div>
+      <div class="desc" id="tDesc"></div>
+      <div class="bigbar"><div class="fill" id="tFill"></div><div class="pct" id="tPct"></div></div>
+    </div>
+  </section>
+  <section class="meters">
+    <div class="meter m-xp"><div class="top"><span class="lbl">experience</span><span class="val" id="xpV"></span></div><div class="name" id="xpN"></div><div class="bar"><i id="xpB"></i></div></div>
+    <div class="meter m-pack"><div class="top"><span class="lbl">pack</span><span class="val" id="pkV"></span></div><div class="name" id="pkN"></div><div class="bar"><i id="pkB"></i></div></div>
+    <div class="meter m-quest"><div class="top"><span class="lbl">quest</span><span class="val" id="qV"></span></div><div class="name" id="qN"></div><div class="bar"><i id="qB"></i></div></div>
+    <div class="meter m-chap"><div class="top"><span class="lbl">story</span><span class="val" id="cV"></span></div><div class="name" id="cN"></div><div class="bar"><i id="cB"></i></div></div>
+  </section>
+  <section class="main">
+    <div class="col">
+      <div class="sec"><h2>Attributes</h2><div class="stats" id="stats"></div>
+        <ul class="rows vitals" id="vitals"></ul></div>
+      <div class="sec"><h2>Equipment</h2><ul class="rows" id="equip"></ul></div>
+    </div>
+    <div class="col c-log">
+      <div class="chron sec"><h2>Chronicle <small id="elapsed"></small></h2><ul class="log" id="log"></ul></div>
+    </div>
+    <div class="col">
+      <div class="sec"><h2 id="bookT">Spellbook</h2><ul class="rows" id="skills"></ul></div>
+      <div class="sec"><h2>Pack <small id="gold"></small></h2><ul class="rows" id="pack"></ul></div>
+      <div class="sec quests"><h2>Quests</h2><ul class="rows" id="quests"></ul></div>
+    </div>
+  </section>`;
+  $("speed").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; speed = S.speed = +b.dataset.s; renderSpeed(); });
+  $("retire").addEventListener("click", confirmRetire);
+  renderSpeed();
+}
+
+function renderSpeed() { document.querySelectorAll("#speed button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.s === speed))); }
+
+let lastLogId = 0;
+function renderLists() {
+  const c = cls();
+  $("hName").textContent = S.name;
+  $("hSub").innerHTML = `Level <b>${S.level}</b> ${esc(S.race)} <b>${esc(S.cls)}</b>`;
+  $("hWhere").textContent = S.location;
+  $("stats").innerHTML = STATS.map(k => `<div class="stat ${k === c.prime ? "prime" : ""}"><span class="lbl">${k}</span><b>${S.stats[k]}</b></div>`).join("");
+  $("vitals").innerHTML = [
+    ["hit points", hpMax()], ["mana", mpMax()], ["foes felled", S.kills.toLocaleString()], ["gold", S.gold.toLocaleString()],
+  ].map(([k, v]) => `<li><span class="k">${k}</span><span class="v num">${v}</span></li>`).join("");
+  $("equip").innerHTML = SLOTS.map(s => { const it = S.equip[s]; return `<li><span class="k">${s.toLowerCase()}</span><span class="v">${it ? esc(it.name) + `<span class="pow">${it.pow}</span>` : '<span class="empty">nothing</span>'}</span></li>`; }).join("");
+  $("bookT").textContent = c.book;
+  $("skills").innerHTML = c.skills.filter(s => S.skills[s]).map(s => `<li><span class="v" style="text-align:left">${esc(s)}</span><span class="rank">${roman(S.skills[s])}</span></li>`).join("") || `<li><span class="empty">nothing yet</span></li>`;
+  $("gold").textContent = `${S.gold.toLocaleString()} gold`;
+  $("pack").innerHTML = S.pack.length ? S.pack.map(p => `<li><span class="v" style="text-align:left">${esc(p.name)} <span class="num" style="color:var(--dim)">×${p.qty}</span></span><span class="num" style="color:var(--dim)">${p.val}g</span></li>`).join("") : `<li><span class="empty">empty, and slightly smelly</span></li>`;
+  const qs = [];
+  if (S.quest) qs.push(`<li><span class="v qcur">${esc(S.quest.name)}</span></li>`);
+  S.questsDone.slice(0, 8).forEach(q => qs.push(`<li><span class="v"><span class="qcheck">✓</span><span class="qdone">${esc(q)}</span></span></li>`));
+  $("quests").innerHTML = qs.join("") || `<li><span class="empty">no quests yet</span></li>`;
+  $("log").innerHTML = S.log.map(l => `<li class="${l.k}${l.id > lastLogId && lastLogId ? " fresh" : ""}"><time>${fmtTime(l.t)}</time><span>${esc(l.txt)}</span></li>`).join("");
+  lastLogId = S.log.length ? S.log[0].id : 0;
+  $("xpN").textContent = `Level ${S.level} → ${S.level + 1}`;
+  $("pkN").textContent = packCount() >= capacity() ? "Full. Time to sell." : `${S.pack.length} kinds of loot`;
+  $("qN").textContent = S.quest ? S.quest.name : "—";
+  $("qN").title = S.quest ? S.quest.name : "";
+  $("cN").textContent = chapterTitle(S.chapter);
+  $("cN").title = chapterTitle(S.chapter);
+}
+
+function renderBars() {
+  const t = S.task;
+  if (t) {
+    const p = Math.min(1, t.el / t.t);
+    $("tDesc").textContent = t.d; $("tFill").style.width = (p * 100).toFixed(1) + "%";
+    $("tPct").textContent = Math.floor(p * 100) + "%";
+  }
+  const need = xpNeed(S.level);
+  $("xpV").textContent = `${S.xp} / ${need}`; $("xpB").style.width = (S.xp / need * 100) + "%";
+  const pc = packCount(), cap = capacity();
+  $("pkV").textContent = `${pc} / ${cap}`; $("pkB").style.width = Math.min(100, pc / cap * 100) + "%";
+  if (S.quest) { $("qV").textContent = `${S.quest.prog} / ${S.quest.max}`; $("qB").style.width = (S.quest.prog / S.quest.max * 100) + "%"; }
+  else { $("qV").textContent = ""; $("qB").style.width = "0%"; }
+  const cm = Math.max(1, S.chapterMax);
+  $("cV").textContent = S.chapterMax ? `${Math.min(S.chapterProg, cm)} / ${cm} quests` : "";
+  $("cB").style.width = Math.min(100, S.chapterProg / cm * 100) + "%";
+  $("elapsed").textContent = "on the road " + fmtTime(S.time);
+}
+
+let rafId = 0, lastNow = 0, saveTimer = 0;
+function loop(now) {
+  const dt = Math.min(now - lastNow, 1000); lastNow = now;
+  if (S) {
+    advance(dt * speed);
+    if (dirty) { renderLists(); dirty = false; }
+    renderBars();
+    saveTimer += dt;
+    if (saveTimer > 5000) { saveTimer = 0; save(); setTimeout(() => { const el = $("saved"); if (el) el.textContent = ""; }, 1200); }
+  }
+  rafId = requestAnimationFrame(loop);
+}
+
+function startGame() {
+  speed = S.speed || 1;
+  gameShell(); lastLogId = 0; dirty = true;
+  cancelAnimationFrame(rafId); lastNow = performance.now(); rafId = requestAnimationFrame(loop);
+}
+
+function confirmRetire() {
+  const m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `<div class="box" role="dialog" aria-modal="true" aria-labelledby="mt"><h3 id="mt">Retire ${esc(S.name)}?</h3><p>This ends the current adventure and erases its save. A new hero starts from level 1.</p><div class="acts"><button type="button" class="ghost" id="mNo">Keep going</button><button type="button" class="danger" id="mYes">Retire hero</button></div></div>`;
+  document.body.appendChild(m);
+  $("mNo").focus();
+  $("mNo").onclick = () => m.remove();
+  m.addEventListener("click", e => { if (e.target === m) m.remove(); });
+  $("mYes").onclick = () => { m.remove(); wipe(); S = null; showCreate(); };
+}
+
+// ---------- rendering: character creation ----------
+let draft = null;
+function showCreate() {
+  cancelAnimationFrame(rafId);
+  draft = draft || { name: randomName(), race: "Human", cls: "Warrior", stats: rollStats() };
+  $("app").innerHTML = `
+  <div class="create">
+    <header><h1>The Endless Errand</h1>
+      <p>A role-playing game that plays itself. Roll a hero, pick a calling, then sit back and watch them fight, loot, haggle and level up on their own.</p></header>
+    <div class="field"><label class="lbl" for="cName">name</label>
+      <div class="namebox"><input id="cName" maxlength="28" autocomplete="off" spellcheck="false"><button type="button" class="die" id="cRandName">Random</button></div></div>
+    <div class="field"><span class="lbl">race</span><div class="chips" id="cRace"></div></div>
+    <div class="field"><span class="lbl">class</span><div class="classes" id="cCls"></div></div>
+    <div class="field"><span class="lbl">attributes · 3d6 each, before racial bonus</span>
+      <div class="rollrow"><div class="stats" id="cStats"></div><button type="button" class="die" id="cRoll" style="padding:10px 16px">Re-roll</button><span class="total" id="cTotal"></span></div></div>
+    <button type="button" class="begin" id="cGo">Begin the errand</button>
+  </div>`;
+  $("cName").value = draft.name;
+  $("cName").addEventListener("input", e => draft.name = e.target.value);
+  $("cRandName").onclick = () => { draft.name = randomName(); $("cName").value = draft.name; };
+  $("cRoll").onclick = () => { draft.stats = rollStats(); drawCreate(); };
+  $("cGo").onclick = () => { newHero(draft); draft = null; startGame(); };
+  $("cRace").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { draft.race = b.dataset.r; drawCreate(); } });
+  $("cCls").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { draft.cls = b.dataset.c; drawCreate(); } });
+  drawCreate();
+}
+function drawCreate() {
+  $("cRace").innerHTML = Object.entries(RACES).map(([r, v]) => `<button type="button" class="chip" data-r="${r}" aria-pressed="${r === draft.race}">${r}<small>${v.note}</small></button>`).join("");
+  $("cCls").innerHTML = Object.entries(CLASSES).map(([n, c]) => `<button type="button" class="ccard" data-c="${n}" aria-pressed="${n === draft.cls}"><h3>${n}</h3><p>${c.blurb}</p><span class="lbl">favours ${c.prime} · ${c.book.toLowerCase()}</span></button>`).join("");
+  const prime = CLASSES[draft.cls].prime;
+  $("cStats").innerHTML = STATS.map(k => `<div class="stat ${k === prime ? "prime" : ""}"><span class="lbl">${k}</span><b>${draft.stats[k]}</b></div>`).join("");
+  $("cTotal").innerHTML = `total <b>${STATS.reduce((a, k) => a + draft.stats[k], 0)}</b>`;
+}
+
+// ---------- boot ----------
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+window.addEventListener("beforeunload", save);
+try { const h = window.claude && window.claude.hot; if (h && typeof h.snapshot === "function") h.snapshot(() => ({ S, draft })); } catch (e) {}
+function boot(data) {
+  data = data || {};
+  S = data.S || load();
+  draft = data.draft || null;
+  if (S) startGame(); else showCreate();
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
